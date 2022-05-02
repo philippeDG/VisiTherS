@@ -44,7 +44,9 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
     print('testing...')
     model.eval()
     with torch.no_grad():
-        correct = 0
+        correct_1 = 0
+        correct_3 = 0
+        correct_5 = 0
         for i in range(0, loader.disparity.shape[0], bsize):
             if i == loader.last_batch_idx:
                 print(f'\r{i + loader.remainder} / {loader.disparity.shape[0]}', end='', flush=True)
@@ -64,48 +66,12 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
                 weight_corr = weight_corr.cuda()
                 weight_concat = weight_concat.cuda()
 
-            # print("rgb.shape")
-            # print(rgb.shape)
-            # print("lwir.shape")
-            # print(lwir.shape)
-            # torch.Size([100, 3, 36, 36])
-            # lwir.shape
-            # torch.Size([100, 3, 36, 100])
-
             frgb = model.rgb_features(rgb)
-            # frgb.shape
-            # torch.Size([100, 64, 9, 9])
-            # print("frgb.shape")
-            # print(frgb.shape)
-            # torch.Size([100, 64, 9, 25])
+            flwir = model.lwir_features(lwir)
 
-            for d in range(64):
-                # print("small patch")
-                # print(lwir[:,:,:,d:d+36].shape)
-                flwir = model.lwir_features(lwir[:,:,:,d:d+36])
-                # print("flwir.shape")
-                # print(flwir.shape)
-                # lw = flwir[:, :, :, d]
-                # lw = torch.unsqueeze(flwir, dim=3)
-                # print("lw2")
-                # print(lw.shape)
-                lw = flwir
 
-            # lw1
-            # torch.Size([100, 64, 9])
-            # lw2
-            # torch.Size([100, 64, 9, 1])
-            # corr
-            # torch.Size([100, 64, 9, 9])
-            # frgb.shape
-            # torch.Size([100, 64, 9, 9])
-            # F.relu(frgb).shape
-            # torch.Size([100, 64, 9, 9])
-            # lw.shape
-            # torch.Size([100, 64, 9, 1])
-            # F.relu(lw).shape
-            # torch.Size([100, 64, 9, 1])
-
+            for d in range(flwir.shape[3]-flwir.shape[2]): # patch width - individual patch width gives the vumber of disparities in the patch
+                lw = flwir[:, :, :, d:d+36]
 
                 if name == 'corrnet':
                     correlation = torch.matmul(frgb, lw)
@@ -120,13 +86,6 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
                 else:
                     correlation = torch.matmul(frgb, lw)
 
-
-                    # print("F.relu(frgb).shape")
-                    # print(F.relu(frgb).shape)
-                    # print("lw.shape")
-                    # print(lw.shape)
-                    # print("F.relu(lw).shape")
-                    # print(F.relu(lw).shape)
                     concatenation = torch.cat((F.relu(frgb), F.relu(lw)), dim=1)
                     correlation = correlation.view(correlation.size(0), -1)
                     concatenation = concatenation.view(concatenation.size(0), -1)
@@ -148,11 +107,15 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
             corr_d = torch.sum(w_corr * disp, dim=1)
             concat_d = torch.sum(w_concat * disp, dim=1)
             dp = (corr_d + concat_d) / 2.0
-            correct += metrics.correct_matches_distance_n(dp, targets, n)
+            correct_1 += metrics.correct_matches_distance_n(dp, targets, 1)
+            correct_3 += metrics.correct_matches_distance_n(dp, targets, 3)
+            correct_5 += metrics.correct_matches_distance_n(dp, targets, 5)
 
-    accuracy = float(correct) / float(loader.disparity.shape[0])
+    accuracy_1 = float(correct_1) / float(loader.disparity.shape[0])
+    accuracy_3 = float(correct_3) / float(loader.disparity.shape[0])
+    accuracy_5 = float(correct_5) / float(loader.disparity.shape[0])
 
-    return accuracy
+    return accuracy_1, accuracy_3, accuracy_5
 
 
 def main() -> None:
@@ -213,7 +176,9 @@ def main() -> None:
         criterion.cuda()
 
     accuracy = test(model, dataloader, args.model, args.max_disparity, args.batch_size, args.n, args.cuda)
-    print(f'\ntest accuracy: {accuracy * 100:.2f}')
+    print(f'\ntest accuracy n=1: {accuracy[0] * 100:.2f}')
+    print(f'\ntest accuracy n=3: {accuracy[1] * 100:.2f}')
+    print(f'\ntest accuracy n=5: {accuracy[2] * 100:.2f}')
 
     print('Fin.')
 
