@@ -211,9 +211,9 @@ def main() -> None:
 
     print('loading model...')
     if args.model == 'corrnet':
-        model = CorrNet(num_channels=4)
+        model = CorrNet(config)
     elif args.model == 'concatnet':
-        model = ConcatNet(num_channels=4)
+        model = ConcatNet(config)
     else:
         model = DomainNet(config)
 

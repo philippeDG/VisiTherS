@@ -39,21 +39,6 @@ class DomainNet(nn.Module):
         rgb = self.rgb_features(rgb)
         lwir = self.lwir_features(lwir)
 
-
-        # print("rgb")
-        # print("rgb shape")
-        # print(rgb.shape)
-        # print("rgb type")
-        # print(type(rgb))
-        # print("rgb type[0]")
-        # print(type(rgb[0]))
-
-
-        # print("lwirshape")
-        # print(lwir.shape)
-        # print("lwir type")
-        # print(type(lwir))
-
         correlation = torch.matmul(rgb, lwir)
         concatenation = torch.cat((F.relu(rgb), F.relu(lwir)), dim=1)
 
