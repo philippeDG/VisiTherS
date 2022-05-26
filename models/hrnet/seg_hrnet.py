@@ -313,7 +313,7 @@ class HighResolutionNet(nn.Module):
         #     self.stage4_cfg, num_channels, multi_scale_output=True)
 
         last_inp_channels = np.int(np.sum(pre_stage_channels))
-
+        last_inp_channels = 48
         self.last_layer = nn.Sequential(
             nn.Conv2d(
                 in_channels=last_inp_channels,
@@ -539,8 +539,8 @@ class HighResolutionNet(nn.Module):
         # print("x3")
         # print(x[3].shape)
         # x = torch.cat([x[0], x1, x2, x3], 1)
-        x = torch.cat([x[0], x1, x2], 1)
-
+        # x = torch.cat([x[0], x1, x2], 1)
+        x = torch.cat([x[0]], 1)
         # print("bef last layer")
         # print(x.shape)
         x = self.last_layer(x)
@@ -564,7 +564,7 @@ class HighResolutionNet(nn.Module):
         if os.path.isfile(pretrained):
             pretrained_dict = torch.load(pretrained)
             logger.info('=> loading pretrained model {}'.format(pretrained))
-            model_dict = self.state_dict()              
+            model_dict = self.state_dict()
             pretrained_dict = {k: v for k, v in pretrained_dict.items()
                                if k in model_dict.keys()}
             for k, _ in pretrained_dict.items():
