@@ -53,6 +53,8 @@ def training(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: torch
     model.train()
     correct_corr = 0
     correct_concat = 0
+    correct_corr_stage1 = 0
+    correct_concat_stage1 = 0
     total_loss = 0.0
     for i in range(0, iterations):
         print(f'\r{i + 1} / {iterations}', end='', flush=True)
@@ -73,12 +75,18 @@ def training(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: torch
             _, predictions_concat = torch.max(concat, dim=1)
             correct_concat += torch.sum(predictions_concat == targets)
         else:
-            corr, concat = model(rgb, lwir)
-            loss = criterion(corr, targets) + criterion(concat, targets)
+            corr, concat, corr_stage1, concat_stage1 = model(rgb, lwir)
+            loss = criterion(corr, targets) + criterion(concat, targets) + criterion(corr_stage1, targets) + criterion(concat_stage1, targets)
             _, predictions_corr = torch.max(corr, dim=1)
             _, predictions_concat = torch.max(concat, dim=1)
+
+            _, predictions_corr_stage1 = torch.max(corr_stage1, dim=1)
+            _, predictions_concat_stage1 = torch.max(concat_stage1, dim=1)
+
             correct_corr += torch.sum(predictions_corr == targets)
             correct_concat += torch.sum(predictions_concat == targets)
+            correct_corr_stage1 += torch.sum(predictions_corr_stage1 == targets)
+            correct_concat_stage1 += torch.sum(predictions_concat_stage1 == targets)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -86,9 +94,12 @@ def training(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: torch
 
     accuracy_corr = float(correct_corr) / float(iterations * bsize)
     accuracy_concat = float(correct_concat) / float(iterations * bsize)
+    accuracy_corr_stage1 = float(correct_corr_stage1) / float(iterations * bsize)
+    accuracy_concat_stage1 = float(correct_concat_stage1) / float(iterations * bsize)
     total_loss = float(total_loss) / float(iterations * bsize)
 
-    return max(accuracy_corr, accuracy_concat), total_loss
+    return max(accuracy_corr, accuracy_concat, accuracy_corr_stage1, accuracy_concat_stage1), total_loss
+
 
 
 def validation(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: torch.nn.Module, iterations: int,
@@ -109,6 +120,8 @@ def validation(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: tor
     with torch.no_grad():
         correct_corr = 0
         correct_concat = 0
+        correct_corr_stage1 = 0
+        correct_concat_stage1 = 0
         total_loss = 0.0
         for i in range(0, iterations):
             print(f'\r{i + 1} / {iterations}', end='', flush=True)
@@ -128,19 +141,27 @@ def validation(model: torch.nn.Module, loader: TrainLITIVDataset, criterion: tor
                 _, predictions_concat = torch.max(concat, dim=1)
                 correct_concat += torch.sum(predictions_concat == targets)
             else:
-                corr, concat = model(rgb, lwir)
-                loss = criterion(corr, targets) + criterion(concat, targets)
+                corr, concat, corr_stage1, concat_stage1 = model(rgb, lwir)
+                loss = criterion(corr, targets) + criterion(concat, targets) + criterion(corr_stage1, targets) + criterion(concat_stage1, targets)
                 _, predictions_corr = torch.max(corr, dim=1)
                 _, predictions_concat = torch.max(concat, dim=1)
+
+                _, predictions_corr_stage1 = torch.max(corr_stage1, dim=1)
+                _, predictions_concat_stage1 = torch.max(concat_stage1, dim=1)
+
                 correct_corr += torch.sum(predictions_corr == targets)
                 correct_concat += torch.sum(predictions_concat == targets)
+                correct_corr_stage1 += torch.sum(predictions_corr_stage1 == targets)
+                correct_concat_stage1 += torch.sum(predictions_concat_stage1 == targets)
             total_loss += loss
 
     accuracy_corr = float(correct_corr) / float(iterations * bsize)
     accuracy_concat = float(correct_concat) / float(iterations * bsize)
+    accuracy_corr_stage1 = float(correct_corr_stage1) / float(iterations * bsize)
+    accuracy_concat_stage1 = float(correct_concat_stage1) / float(iterations * bsize)
     total_loss = float(total_loss) / float(iterations * bsize)
 
-    return max(accuracy_corr, accuracy_concat), total_loss
+    return max(accuracy_corr, accuracy_concat, accuracy_corr_stage1, accuracy_concat_stage1), total_loss
 
 def arg_parser():
     parser = argparse.ArgumentParser()

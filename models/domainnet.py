@@ -36,8 +36,8 @@ class DomainNet(nn.Module):
         :return: 2 elements probability tensors (rgb and lwir being the same or not).
         """
 
-        rgb = self.rgb_features(rgb)
-        lwir = self.lwir_features(lwir)
+        rgb,rgb_stage1 = self.rgb_features(rgb)
+        lwir,lwir_stage1 = self.lwir_features(lwir)
 
         correlation = torch.matmul(rgb, lwir)
         concatenation = torch.cat((F.relu(rgb), F.relu(lwir)), dim=1)
@@ -48,4 +48,14 @@ class DomainNet(nn.Module):
         correlation = self.correlation_cls(correlation)
         concatenation = self.concat_cls(concatenation)
 
-        return correlation, concatenation
+
+        correlation_stage1 = torch.matmul(rgb_stage1, lwir_stage1)
+        concatenation_stage1 = torch.cat((F.relu(rgb_stage1), F.relu(lwir_stage1)), dim=1)
+
+        correlation_stage1 = correlation_stage1.view(correlation_stage1.size(0), -1) # [64, 1539]
+        concatenation_stage1 = concatenation_stage1.view(concatenation_stage1.size(0), -1)
+
+        correlation_stage1 = self.correlation_cls(correlation_stage1)
+        concatenation_stage1 = self.concat_cls(concatenation_stage1)
+
+        return correlation, concatenation, correlation_stage1, concatenation_stage1

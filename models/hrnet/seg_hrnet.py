@@ -414,85 +414,16 @@ class HighResolutionNet(nn.Module):
         return nn.Sequential(*modules), num_inchannels
 
     def forward(self, x):
-
-                #         83 / 200Forward net
-                # torch.Size([32, 3, 36, 36])
-                # 1
-                # torch.Size([32, 64, 36, 36])
-                # 2
-                # torch.Size([32, 64, 36, 36])
-                # bef stage 1
-                # torch.Size([32, 256, 36, 36])
-                # x0
-                # torch.Size([32, 48, 36, 36])
-                # x1
-                # torch.Size([32, 96, 18, 18])
-                # x2
-                # torch.Size([32, 192, 9, 9])
-                # bef last layer
-                # torch.Size([32, 336, 36, 36])
-                # lastlayer after
-                # torch.Size([32, 64, 36, 36])
-                # -------------------------
-                # Forward net
-                # torch.Size([32, 3, 36, 36])
-                # 1
-                # torch.Size([32, 64, 36, 36])
-                # 2
-                # torch.Size([32, 64, 36, 36])
-                # bef stage 1
-                # torch.Size([32, 256, 36, 36])
-                # x0
-                # torch.Size([32, 48, 36, 36])
-                # x1
-                # torch.Size([32, 96, 18, 18])
-                # x2
-                # torch.Size([32, 192, 9, 9])
-                # bef last layer
-                # torch.Size([32, 336, 36, 36])
-                # lastlayer after
-                # torch.Size([32, 64, 36, 36])
-
-
-        # print("Forward net")
-        # print(x.shape)
         x = self.conv1(x)
         x = self.bn1(x)
-        # print(1)
-        # print(x.shape)
+
         x = self.relu(x)
-        
+
         x = self.conv2(x)
-        # print(2)
-        # print(x.shape)
+
         x = self.bn2(x)
         x = self.relu(x)
         x = self.layer1(x)
-
-        # print("bef stage 1")
-        # print(x.shape)
-
-        # torch.Size([64, 3, 36, 36])
-        # 1
-        # torch.Size([64, 64, 18, 18])
-        # 2
-        # torch.Size([64, 64, 9, 9])
-        # torch.Size([64, 64, 9, 9])
-        # bef stage 1
-        # torch.Size([64, 256, 9, 9])
-        # x0
-        # torch.Size([64, 48, 9, 9])
-        # x1
-        # torch.Size([64, 96, 5, 5])
-        # x2
-        # torch.Size([64, 192, 3, 3])
-        # x3
-        # torch.Size([64, 384, 2, 2])
-        # bef last layer
-        # torch.Size([64, 720, 9, 9])
-        # lastlayer after
-        # torch.Size([64, 64, 9, 9])
-
 
         x_list = []
         for i in range(self.stage2_cfg['NUM_BRANCHES']):#2
@@ -514,41 +445,21 @@ class HighResolutionNet(nn.Module):
         #y_list = self.stage3(x_list)
         x = self.stage3(x_list)
 
-        # x_list = []
-        # for i in range(self.stage4_cfg['NUM_BRANCHES']):#4
-        #     if self.transition3[i] is not None:
-        #         if i < self.stage3_cfg['NUM_BRANCHES']:
-        #             x_list.append(self.transition3[i](y_list[i]))
-        #         else:
-        #             x_list.append(self.transition3[i](y_list[-1]))
-        #     else:
-        #         x_list.append(y_list[i])
-        # x = self.stage4(x_list)
 
         # Upsampling
         x0_h, x0_w = x[0].size(2), x[0].size(3)
-        # print("x0")
-        # print(x[0].shape)
+
         x1 = F.interpolate(x[1], size=(x0_h, x0_w), mode='bilinear', align_corners=ALIGN_CORNERS)
-        # print("x1")
-        # print(x[1].shape)
         x2 = F.interpolate(x[2], size=(x0_h, x0_w), mode='bilinear', align_corners=ALIGN_CORNERS)
-        # print("x2")
-        # print(x[2].shape)
-        # x3 = F.interpolate(x[3], size=(x0_h, x0_w), mode='bilinear', align_corners=ALIGN_CORNERS)
-        # print("x3")
-        # print(x[3].shape)
-        # x = torch.cat([x[0], x1, x2, x3], 1)
+
         # x = torch.cat([x[0], x1, x2], 1)
         x = torch.cat([x[0]], 1)
-        # print("bef last layer")
-        # print(x.shape)
+        x_stage_1 = torch.cat([y_list[0]], 1)
+
         x = self.last_layer(x)
-        # x = torch.reshape(x, (32,3888,1,1))
-        # print("lastlayer after")
-        # print(x.shape)
-        # print("-------------------------")
-        return x
+        x_stage_1 = self.last_layer(x_stage_1)
+
+        return x, x_stage_1
 
     def init_weights(self, pretrained='',):
         logger.info('=> init weights from normal distribution')
