@@ -212,23 +212,11 @@ def main() -> None:
     validation_loader = TrainLITIVDataset(dataset.rgb['validation'], dataset.lwir['validation'],
                                           dataset.disp['validation'], 'validation', args)
 
-
-    # if args.seed > 0:
-    #     import random
-    #     print('Seeding with', args.seed)
-    #     random.seed(args.seed)
-    #     torch.manual_seed(args.seed)
-
     logger, final_output_dir, tb_log_dir = create_logger(
         config, args.cfg, 'train')
 
     logger.info(pprint.pformat(args))
     logger.info(config)
-
-    # cudnn.benchmark = config.CUDNN.BENCHMARK
-    # cudnn.deterministic = config.CUDNN.DETERMINISTIC
-    # cudnn.enabled = config.CUDNN.ENABLED
-
 
     print('loading model...')
     if args.model == 'corrnet':
