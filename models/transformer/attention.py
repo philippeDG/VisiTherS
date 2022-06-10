@@ -60,7 +60,6 @@ class MultiheadAttentionRelative(nn.MultiheadAttention):
                 if _b is not None:
                     _b = _b[_start:]
                 k, v = F.linear(key, _w, _b).chunk(2, dim=-1)
-
         # project to find q_r, k_r
         if pos_enc is not None:
             # reshape pos_enc
@@ -81,7 +80,6 @@ class MultiheadAttentionRelative(nn.MultiheadAttention):
         q = q * scaling
         if q_r is not None:
             q_r = q_r * scaling
-
         # reshape
         q = q.contiguous().view(w, bsz, self.num_heads, head_dim)  # WxNxExC
         if k is not None:

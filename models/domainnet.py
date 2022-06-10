@@ -49,8 +49,6 @@ class DomainNet(nn.Module):
         concatenation = torch.cat((F.relu(rgb), F.relu(lwir)), dim=1)
 
         pos_enc = self.pos_encoder(concatenation)
-
-
         attn_weight = self.transformer(rgb, lwir, pos_enc)
 
         correlation = correlation.view(correlation.size(0), -1) # [64, 1539]

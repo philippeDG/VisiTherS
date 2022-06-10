@@ -56,8 +56,6 @@ class Transformer(nn.Module):
                     return module(*inputs)
 
                 return custom_self_attn
-            print("feat.shape1")
-            print(feat.shape)
             feat = checkpoint(create_custom_self_attn(self_attn), feat, pos_enc, pos_indexes)
 
             # add a flag for last layer of cross attention
@@ -75,8 +73,6 @@ class Transformer(nn.Module):
                         return module(*inputs, False)
 
                     return custom_cross_attn
-            print("feat.shape2")
-            print(feat[:, :hn].shape)
             feat, attn_weight = checkpoint(create_custom_cross_attn(cross_attn), feat[:, :hn], feat[:, hn:], pos_enc,
                                            pos_indexes)
 
@@ -92,9 +88,11 @@ class Transformer(nn.Module):
         """
 
         # flatten NxCxHxW to WxHNxC
-        bs, c, hn, w = feat_left.shape
+        bs, c, h, w = feat_left.shape
 
         feat_left = feat_left.permute(1, 3, 2, 0).flatten(2).permute(1, 2, 0)  # CxWxHxN -> CxWxHN -> WxHNxC
+
+        _,hn,_ = feat_left.shape
         feat_right = feat_right.permute(1, 3, 2, 0).flatten(2).permute(1, 2, 0)
         if pos_enc is not None:
             with torch.no_grad():
@@ -109,10 +107,8 @@ class Transformer(nn.Module):
         feat = torch.cat([feat_left, feat_right], dim=1)  # Wx2HNxC
 
         # compute attention
-        print("feat")
-        print(feat.shape)
         attn_weight = self._alternating_attn(feat, pos_enc, pos_indexes, hn)
-        attn_weight = attn_weight.view(hn, bs, w, w).permute(1, 0, 2, 3)  # NxHxWxW, dim=2 left image, dim=3 right image
+        attn_weight = attn_weight.view(h, bs, w, w).permute(1, 0, 2, 3)  # NxHxWxW, dim=2 left image, dim=3 right image
 
         return attn_weight
 
@@ -137,11 +133,7 @@ class TransformerSelfAttnLayer(nn.Module):
         :param pos_indexes: indexes to slice pos encoding [W,W]
         :return: updated image feature
         """
-        print()
-        print()
-        print()
-        print("feat self att")
-        print(feat.shape)
+
         feat2 = self.norm1(feat)
 
         # torch.save(feat2, 'feat_self_attn_input_' + str(layer_idx) + '.dat')
@@ -180,12 +172,7 @@ class TransformerCrossAttnLayer(nn.Module):
         :param last_layer: Boolean indicating if the current layer is the last layer
         :return: update image feature and attention weight
         """
-        print()
-        print()
 
-        print("feat cross att")
-        print(feat_left.shape)
-        print(feat_right.shape)
         feat_left_2 = self.norm1(feat_left)
         feat_right_2 = self.norm1(feat_right)
 
