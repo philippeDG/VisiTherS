@@ -86,7 +86,6 @@ class Transformer(nn.Module):
         :param pos_enc: relative positional encoding, [N,C,H,2W-1]
         :return: cross attention values [N,H,W,W], dim=2 is left image, dim=3 is right image
         """
-
         # flatten NxCxHxW to WxHNxC
         bs, c, h, w = feat_left.shape
 
@@ -104,6 +103,7 @@ class Transformer(nn.Module):
             pos_indexes = None
 
         # concatenate left and right features
+
         feat = torch.cat([feat_left, feat_right], dim=1)  # Wx2HNxC
 
         # compute attention
@@ -133,14 +133,11 @@ class TransformerSelfAttnLayer(nn.Module):
         :param pos_indexes: indexes to slice pos encoding [W,W]
         :return: updated image feature
         """
-
         feat2 = self.norm1(feat)
 
         # torch.save(feat2, 'feat_self_attn_input_' + str(layer_idx) + '.dat')
-
         feat2, attn_weight, _ = self.self_attn(query=feat2, key=feat2, value=feat2, pos_enc=pos,
                                                pos_indexes=pos_indexes)
-
         # torch.save(attn_weight, 'self_attn_' + str(layer_idx) + '.dat')
 
         feat = feat + feat2
@@ -172,7 +169,6 @@ class TransformerCrossAttnLayer(nn.Module):
         :param last_layer: Boolean indicating if the current layer is the last layer
         :return: update image feature and attention weight
         """
-
         feat_left_2 = self.norm1(feat_left)
         feat_right_2 = self.norm1(feat_right)
 

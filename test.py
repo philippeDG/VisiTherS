@@ -58,8 +58,8 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
             disp = disp.repeat(repeats=(bsize, )).reshape(bsize, max_disp + 1)
             weight_corr = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
             weight_concat = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
-            weight_corr_stage_1 = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
-            weight_concat_stage_1 = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
+            # weight_corr_stage_1 = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
+            # weight_concat_stage_1 = torch.zeros(size=(bsize, max_disp + 1), dtype=torch.float32)
             if cuda:
                 rgb = rgb.cuda()
                 lwir = lwir.cuda()
@@ -67,8 +67,8 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
                 disp = disp.cuda()
                 weight_corr = weight_corr.cuda()
                 weight_concat = weight_concat.cuda()
-                weight_corr_stage_1 = weight_corr_stage_1.cuda()
-                weight_concat_stage_1 = weight_concat_stage_1.cuda()
+                # weight_corr_stage_1 = weight_corr_stage_1.cuda()
+                # weight_concat_stage_1 = weight_concat_stage_1.cuda()
 
             frgb, frgb_stage_1 = model.rgb_features(rgb)
             flwir, flwir_stage_1 = model.lwir_features(lwir)
@@ -100,15 +100,15 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
                     weight_concat[:, d] = concat[:, 1]
 
 
-                    correlation_stage_1 = torch.matmul(frgb_stage_1, lw_stage_1)
+                    # correlation_stage_1 = torch.matmul(frgb_stage_1, lw_stage_1)
 
-                    concatenation_stage_1 = torch.cat((F.relu(frgb_stage_1), F.relu(lw_stage_1)), dim=1)
-                    correlation_stage_1 = correlation_stage_1.view(correlation_stage_1.size(0), -1)
-                    concatenation_stage_1 = concatenation_stage_1.view(concatenation_stage_1.size(0), -1)
-                    corr_stage_1 = torch.softmax(model.correlation_cls(correlation_stage_1), dim=1)
-                    concat_stage_1 = torch.softmax(model.concat_cls(concatenation_stage_1), dim=1)
-                    weight_corr_stage_1[:, d] = corr_stage_1[:, 1]
-                    weight_concat_stage_1[:, d] = concat_stage_1[:, 1]
+                    # concatenation_stage_1 = torch.cat((F.relu(frgb_stage_1), F.relu(lw_stage_1)), dim=1)
+                    # correlation_stage_1 = correlation_stage_1.view(correlation_stage_1.size(0), -1)
+                    # concatenation_stage_1 = concatenation_stage_1.view(concatenation_stage_1.size(0), -1)
+                    # corr_stage_1 = torch.softmax(model.correlation_cls(correlation_stage_1), dim=1)
+                    # concat_stage_1 = torch.softmax(model.concat_cls(concatenation_stage_1), dim=1)
+                    # weight_corr_stage_1[:, d] = corr_stage_1[:, 1]
+                    # weight_concat_stage_1[:, d] = concat_stage_1[:, 1]
 
             if name == 'corrnet':
                 w_corr = torch.softmax(weight_corr, dim=1)
@@ -121,14 +121,14 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
                 w_concat = torch.softmax(weight_concat, dim=1)
 
 
-                w_corr_stage_1 = torch.softmax(weight_corr_stage_1, dim=1)
-                w_concat_stage_1 = torch.softmax(weight_concat_stage_1, dim=1)
+                # w_corr_stage_1 = torch.softmax(weight_corr_stage_1, dim=1)
+                # w_concat_stage_1 = torch.softmax(weight_concat_stage_1, dim=1)
 
             corr_d = torch.sum(w_corr * disp, dim=1)
             concat_d = torch.sum(w_concat * disp, dim=1)
-            corr_d_stage_1 = torch.sum(w_corr_stage_1 * disp, dim=1)
-            concat_d_stage_1 = torch.sum(w_concat_stage_1 * disp, dim=1)
-            dp = (corr_d + concat_d + corr_d_stage_1 + concat_d_stage_1) / 4.0
+            # corr_d_stage_1 = torch.sum(w_corr_stage_1 * disp, dim=1)
+            # concat_d_stage_1 = torch.sum(w_concat_stage_1 * disp, dim=1)
+            dp = (corr_d + concat_d)/2.0# + corr_d_stage_1 + concat_d_stage_1) / 4.0
             correct_1 += metrics.correct_matches_distance_n(dp, targets, 1)
             correct_3 += metrics.correct_matches_distance_n(dp, targets, 3)
             correct_5 += metrics.correct_matches_distance_n(dp, targets, 5)

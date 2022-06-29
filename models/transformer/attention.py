@@ -37,7 +37,7 @@ class MultiheadAttentionRelative(nn.MultiheadAttention):
         if torch.equal(query, key) and torch.equal(key, value):
             # self-attention
             q, k, v = F.linear(query, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
-
+            print("q-if{0}".format(q.shape))
         elif torch.equal(key, value):
             # cross-attention
             _b = self.in_proj_bias
@@ -47,6 +47,7 @@ class MultiheadAttentionRelative(nn.MultiheadAttention):
             if _b is not None:
                 _b = _b[_start:_end]
             q = F.linear(query, _w, _b)
+            print("q-else{0}".format(q.shape))
 
             if key is None:
                 assert value is None
