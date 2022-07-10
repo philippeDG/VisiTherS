@@ -267,7 +267,7 @@ class HighResolutionNet(nn.Module):
         ALIGN_CORNERS = config.MODEL.ALIGN_CORNERS
 
         # stem net
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1,
+        self.conv1 = nn.Conv2d(4, 64, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1,
@@ -472,17 +472,17 @@ class HighResolutionNet(nn.Module):
         print("pretrained")
         print(pretrained)
         print(os.path.isfile(pretrained))
-        if os.path.isfile(pretrained):
-            pretrained_dict = torch.load(pretrained)
-            logger.info('=> loading pretrained model {}'.format(pretrained))
-            model_dict = self.state_dict()
-            pretrained_dict = {k: v for k, v in pretrained_dict.items()
-                               if k in model_dict.keys()}
-            for k, _ in pretrained_dict.items():
-                logger.info(
-                    '=> loading {} pretrained model {}'.format(k, pretrained))
-            model_dict.update(pretrained_dict)
-            self.load_state_dict(model_dict)
+        # if os.path.isfile(pretrained):
+        #     pretrained_dict = torch.load(pretrained)
+        #     logger.info('=> loading pretrained model {}'.format(pretrained))
+        #     model_dict = self.state_dict()
+        #     pretrained_dict = {k: v for k, v in pretrained_dict.items()
+        #                        if k in model_dict.keys()}
+        #     for k, _ in pretrained_dict.items():
+        #         logger.info(
+        #             '=> loading {} pretrained model {}'.format(k, pretrained))
+        #     model_dict.update(pretrained_dict)
+        #     self.load_state_dict(model_dict)
 
 def get_seg_model(cfg, **kwargs):
     model = HighResolutionNet(cfg, **kwargs)

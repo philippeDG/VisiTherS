@@ -46,8 +46,8 @@ class LITIV2014(Dataset):
 
         root = os.path.join(self.root, 'BilodeauetAlInfraredDataset/Dataset')
 
-        im_root = root
-        #im_root = os.path.join( "/store/travail/philippeDG/preprocessing/4d", 'BilodeauetAlInfraredDataset/Dataset')
+        #im_root = root
+        im_root = os.path.join( "/store/travail/philippeDG/preprocessing/4d", 'BilodeauetAlInfraredDataset/Dataset')
 
 
         videos = ['vid1', 'vid2', 'vid3']
@@ -79,7 +79,7 @@ class LITIV2014(Dataset):
 
         detectron_output = os.path.join(self.root, "DETECTRON-OUTPUT")
         litiv_output = os.path.join(detectron_output, "litiv2014")
-        MASK_RCNN = False
+        MASK_RCNN = True
 
         for video in videos:
             if video != 'vid2':

@@ -82,8 +82,8 @@ def preprocess(img: np.ndarray, color: bool) -> np.ndarray:
     :return: preprocessed image.
     """
     if color:
-        # img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA )
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB )
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA )
+        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB )
     img = np.transpose(img, axes=(2, 0, 1))
     img = mean_std_norm(img)
     return img

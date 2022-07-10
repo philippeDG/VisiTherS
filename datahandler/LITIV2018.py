@@ -46,9 +46,9 @@ class LITIV2018(Dataset):
         detectron_output = os.path.join(self.root, "DETECTRON-OUTPUT")
         litiv_output = os.path.join(detectron_output, "litiv2018")
 
-        im_root = self.root
-        #im_root = "/store/travail/philippeDG/preprocessing/4d"
-        MASK_RCNN = False
+        #im_root = self.root
+        im_root = "/store/travail/philippeDG/preprocessing/4d"
+        MASK_RCNN = True
 
         for video in videos:
             video_root = os.path.join(self.root, 'stcharles2018-v04', video)

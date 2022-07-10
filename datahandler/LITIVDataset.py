@@ -14,6 +14,7 @@ import torch
 
 import utils.io as io
 import utils.misc as misc
+from script.dilatation import dilate_mask 
 
 
 class TrainLITIVDataset:
@@ -29,8 +30,9 @@ class TrainLITIVDataset:
         self.lwir = lwir
         self.bsize = args.batch_size
         self.psize = args.patch_size
-        self.channels = 3
+        self.channels = 4
         self.ptr = 0
+        self.dilatation_idx = 5
         tmp_disparity = io.read_disparity_gt(disparity)
 
         # positive match offset = {-1, 0, 1}
@@ -60,10 +62,14 @@ class TrainLITIVDataset:
                 self.ptr = -idx
             frame, x, y, dx, label = self.disparity[i]
 
-            # rgb = cv2.imread(self.rgb[frame], cv2.IMREAD_UNCHANGED).astype(np.float32)
-            # lwir = cv2.imread(self.lwir[frame], cv2.IMREAD_UNCHANGED).astype(np.float32)
-            rgb = cv2.imread(self.rgb[frame], cv2.IMREAD_COLOR).astype(np.float32)
-            lwir = cv2.imread(self.lwir[frame], cv2.IMREAD_COLOR).astype(np.float32)
+            rgb = cv2.imread(self.rgb[frame], cv2.IMREAD_UNCHANGED).astype(np.float32)
+            lwir = cv2.imread(self.lwir[frame], cv2.IMREAD_UNCHANGED).astype(np.float32)
+
+            rgb = dilate_mask(rgb, self.dilatation_idx)
+            lwir = dilate_mask(lwir, self.dilatation_idx)
+
+            # rgb = cv2.imread(self.rgb[frame], cv2.IMREAD_COLOR).astype(np.float32)
+            # lwir = cv2.imread(self.lwir[frame], cv2.IMREAD_COLOR).astype(np.float32)
 
             rgb = torch.from_numpy(misc.preprocess(rgb, True))
             lwir = torch.from_numpy(misc.preprocess(lwir, True))
@@ -92,7 +98,7 @@ class TestLITIVDataset:
         self.bsize = args.batch_size
         self.psize = args.patch_size
         self.hdisp = int(float(args.max_disparity) / 2.0)
-        self.channels = 3
+        self.channels = 4
         self.ptr = 0
         self.disparity = io.read_disparity_gt(disparity)
 
