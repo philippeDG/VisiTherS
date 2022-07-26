@@ -21,7 +21,7 @@ from datahandler.LITIV import LITIV
 from datahandler.LITIVDataset import TrainLITIVDataset
 from models.concatnet import ConcatNet
 from models.corrnet import CorrNet
-from models.domainnet import DomainNet
+from models.stereohrnet import StereoHRNet
 from utils.graphs import Graph
 from utils.logs import Logs
 
@@ -236,7 +236,7 @@ def main() -> None:
     elif args.model == 'concatnet':
         model = ConcatNet(config)
     else:
-        model = DomainNet(config)
+        model = StereoHRNet(config)
 
     if args.loadmodel is not None:
         parameters = torch.load(args.loadmodel)

@@ -17,7 +17,7 @@ from datahandler.LITIV import LITIV
 from datahandler.LITIVDataset import TestLITIVDataset
 from models.concatnet import ConcatNet
 from models.corrnet import CorrNet
-from models.domainnet import DomainNet
+from models.stereohrnet import StereoHRNet
 
 from utils.modelsummary import get_model_summary
 from utils.utils import create_logger, FullModel
@@ -28,7 +28,7 @@ from config import update_config
 import pprint
 
 
-def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: int, bsize: int, n: int, cuda: bool) \
+def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: int, bsize: int, cuda: bool) \
         -> float:
     """
     test function for either the proposed model, or its individual branches.
@@ -37,7 +37,6 @@ def test(model: torch.nn.Module, loader: TestLITIVDataset, name: str, max_disp: 
     :param name: name of the model.
     :param max_disp: maximum disparity to match patches.
     :param bsize: batch size.
-    :param n: disparity threshold.
     :param cuda: use GPU or not.
     :return: accuracy value.
     """
@@ -146,14 +145,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--save', default='logs', help='folder to save logs from executions')
     parser.add_argument('--fold', type=int, default=1, help='which fold to test on')
-    parser.add_argument('--model', default='domainnet', help='name of the model to train')
+    parser.add_argument('--model', default='stereohrnet', help='name of the model to train')
     parser.add_argument('--datapath', default='/home/beaupreda/litiv/datasets/litiv')
-    parser.add_argument('--loadmodel', default='pretrained/domainnet/fold1.pt',
+    parser.add_argument('--loadmodel', default='pretrained/stereohrnet/fold1.pt',
                         help='name of the trained model to load, if any')
     parser.add_argument('--max_disparity', type=int, default=64, help='maximum disparity in the dataset')
     parser.add_argument('--patch_size', type=int, default=18, help='half width of the patch')
     parser.add_argument('--batch_size', type=int, default=100, help='batch size')
-    parser.add_argument('--n', type=int, default=3, help='threshold for the n pixel error function')
     parser.add_argument('--no_cuda', action='store_true', default=False, help='enables/disables GPU')  
     parser.add_argument('--cfg',
                         help='experiment configure file name',
@@ -184,7 +182,7 @@ def main() -> None:
     elif args.model == 'concatnet':
         model = ConcatNet(config)
     else:
-        model = DomainNet(config)
+        model = StereoHRNet(config)
 
     if args.loadmodel is not None:
         parameters = torch.load(args.loadmodel)
@@ -197,7 +195,7 @@ def main() -> None:
         model.cuda()
         criterion.cuda()
 
-    accuracy = test(model, dataloader, args.model, args.max_disparity, args.batch_size, args.n, args.cuda)
+    accuracy = test(model, dataloader, args.model, args.max_disparity, args.batch_size, args.cuda)
     print(f'\ntest accuracy n=1: {accuracy[0] * 100:.2f}')
     print(f'\ntest accuracy n=3: {accuracy[1] * 100:.2f}')
     print(f'\ntest accuracy n=5: {accuracy[2] * 100:.2f}')

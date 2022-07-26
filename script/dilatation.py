@@ -1,3 +1,10 @@
+"""
+Usefule to dilate and erode the mask for ablation studies.
+
+author:  Philippe Duplessis-Guindon
+date: 2022-07-26
+"""
+
 import PIL
 from PIL import Image
 import numpy as np

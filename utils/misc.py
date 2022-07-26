@@ -3,6 +3,9 @@ collection of useful functions.
 
 author: David-Alexandre Beaupre
 date: 2020-04-29
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 import os

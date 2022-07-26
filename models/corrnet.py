@@ -3,6 +3,9 @@ proposed model only with the correlation branch.
 
 author: David-Alexandre Beaupre
 date: 2020-04-27
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 import torch

@@ -3,6 +3,9 @@ combination of LITIV 2014 and 2018 datasets.
 
 author: David-Alexandre Beaupre
 date: 2020-04-24
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 import glob

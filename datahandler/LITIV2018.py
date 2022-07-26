@@ -3,6 +3,9 @@ information about the LITIV 2018 dataset.
 
 author: David-Alexandre Beaupre
 date: 2020-04-27
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 import os

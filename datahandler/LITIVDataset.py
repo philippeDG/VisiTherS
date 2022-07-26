@@ -3,6 +3,9 @@ implementation of the train and test LITIV datasets.
 
 author: David-Alexandre Beaupre
 date: 2020-04-27
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 from argparse import Namespace

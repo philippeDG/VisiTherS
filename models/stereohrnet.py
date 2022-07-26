@@ -3,6 +3,9 @@ proposed model with joint training of correlation and concatenation branches, wi
 
 author: David-Alexandre Beaupre
 date: 2020-04-27
+
+Modified by: Philippe Duplessis-Guindon
+date: 2022-07-26
 """
 
 import torch
@@ -14,19 +17,17 @@ from models.features import Features
 from models.classifier import Classifier
 
 
-class DomainNet(nn.Module):
+class StereoHRNet(nn.Module):
     def __init__(self, config):
         """
         represents the architecture of the proposed model.
         :param num_channels: number of channels of the input image.
         """
-        super(DomainNet, self).__init__()
-        # self.rgb_features = Features(num_channels=3)
-        # self.lwir_features = Features(num_channels=3)
+        super(StereoHRNet, self).__init__()
         self.rgb_features = get_seg_model(config)
         self.lwir_features = get_seg_model(config)
-        self.correlation_cls = Classifier(num_channels=331776)#256
-        self.concat_cls = Classifier(num_channels=663552) #512
+        self.correlation_cls = Classifier(num_channels=331776)
+        self.concat_cls = Classifier(num_channels=663552)
 
     def forward(self, rgb: torch.Tensor, lwir: torch.Tensor) -> (torch.Tensor, torch.Tensor):
         """

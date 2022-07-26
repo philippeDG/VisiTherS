@@ -1,3 +1,10 @@
+"""
+implementation for some visual disparity points.
+
+author: Philippe Duplessis-Guindon
+date: 2022-07-26
+"""
+
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
