@@ -1,58 +1,52 @@
-# Domain Siamese CNNs for Sparse Multispectral Disparity Estimation
+# Stereo HRNet
+**This branch is not cleaned up. This is a WIP. Refer to the main branch for a cleaner version of the base code, and refer to this branch for the transformer part.**
 
-This repository contains all the code to reproduce the experiments made in our paper [Domain Siamese CNNs for Sparse Multispectral Disparity Estimation](https://arxiv.org/pdf/2005.00088.pdf) accepted at ICPR 2020.
+This work is the second part of my master's project. The ` Main ` branch consist of the project shown in my master's theisis, and the code in the ` Transformer ` branch is a work in progress, replacing the head of the network by a transformer. More details will come on the architectures.
 
-This is an overview of our proposed architecture.
 
-![](images/architecture.png)
+## Architecture
 
-Here are some examples of the disparity maps with the human silhouettes segmented. The segmentation masks were provided with the dataset.
+Here is an architecture of the project. HRNet being the feature extractor of both input patches. The head of the network consist of a concatenation and a correlation branch both estimating the disparity individually, and the disparity estimation is given by the mean of both disparity estimation.
+![](images/4d-hrnet-net-arch.png)
 
-![](images/1person.png)
+The goal of the ` Transformer ` branch is to replace the concatenation and correlation branch with a single transformer branch. the transformer block added is from the [stereo transformer repository](https://github.com/mli0603/stereo-transformer).
 
-![](images/3person.png)
+## Conda env
 
-![](images/5person.png)
+We have generated a list of the Conda environement in the ` conda_pkgs.txt ` file. We have generated this with the following commang:
 
-## Usage
-
-### Dependencies
-You can find the dependencies of the project in the [requirements.txt](requirements.txt) file. To install them all, simply type:
 ```
-pip install -r requirements.txt
+conda list --explicit
 ```
 
-### Datasets
-Download both datasets in a folder named "litiv" on your computer. For the LITIV 2018 dataset, both the rectified images (used for this paper) and the raw images are available.
-* [LITIV 2014](https://share.polymtl.ca/alfresco/service/api/path/content;cm:content/workspace/SpacesStore/Company%20Home/Sites/litiv-web/documentLibrary/Datasets/BilodeauetAlInfraredDataset.zip?a=true&guest=true)
-* [LITIV 2018](https://polymtlca0-my.sharepoint.com/personal/guillaume-alexandre_bilodeau_polymtl_ca/_layouts/15/onedrive.aspx?originalPath=aHR0cHM6Ly9wb2x5bXRsY2EwLW15LnNoYXJlcG9pbnQuY29tLzpmOi9nL3BlcnNvbmFsL2d1aWxsYXVtZS1hbGV4YW5kcmVfYmlsb2RlYXVfcG9seW10bF9jYS9Fa0xEdERmQXB6eEJzS0tET1J3ZXNSQUJzb3NJQmExOXBrelpDTEZyVm1HVVhRP3J0aW1lPWp4WjNLa1FuMkVn&id=%2Fpersonal%2Fguillaume%2Dalexandre%5Fbilodeau%5Fpolymtl%5Fca%2FDocuments%2FLITIV2018Dataset%2Fstcharles2018)
+## Train
 
-### Train
-This is an example of a possible command to train our network.
 ```
-python train.py --fold 1 --model domainnet
-```
-To see all possible options, simply use:
-```
-python train.py --help
+python3 train.py    --fold 1 \ 
+                    --datapath /path/to/datasets/folder \  
+                    --cfg hrnet_config.yaml \ 
+                    --batch_size 24 \ 
+                    --learning_rate=0.001
 ```
 
-### Test
-Here is an example of you want to test the network:
+### Pretrain 
+ We have initialisez our training weights using a pretrain HRNet model. That can be downloaded [here](https://github.com/HRNet/HRNet-Semantic-Segmentation).  The pretrain weights are found in the file name: ` hrnetv2_w48_imagenet_pretrained.pth `
+
+
+## Test
 ```
-python test.py --fold 1 \ 
-               --model domainnet \ 
-               --loadmodel pretrained/domainnet/fold1.pt \ 
-               --max_disparity 64 \
-               --n 3
-```
-Once again, to see all available options, use:
-```
-python test.py --help
+python3 test.py --fold 1 \
+                --model stereohrnet \
+                --loadmodel /path/to/pretrain/model.pt  
+                --max_disparity 64 \ 
+                --datapath /path/to/datasets/folder \  
+                --cfg hrnet_config.yaml 
 ```
 
-## Contact
-For any comments, questions or concerns, feel free to contact me at david-alexandre.beaupre@polymtl.ca
+## Personal info
+
+For any question feel free to contact me on my email on my GitHub profile [@philippeDG](https://github.com/philippeDG).
 
 ## License
-See the LICENSE file for more details.
+
+This work is based on the work of [Beaupre et al.](https://github.com/beaupreda/domain-networks)
