@@ -51,7 +51,7 @@ This work is based on the work of [Beaupre et al.](https://github.com/beaupreda/
 
 
 ### Version of the project (commit hash)
-- Adding the mask on the original code base: 
+- Adding the mask on the original code base: On a diffecent repository: https://github.com/philippeDG/4D-MultispectralNet
 - Replacing CNN backbone with hrnet: 607506831fbaf9c528bf195d55b24e133a6467fe
 - Adapting HRNet to our network: de5754dc6343d45fe3f4be9619142b87a41499be
 - Adding mask to the HRNet architecture: main
