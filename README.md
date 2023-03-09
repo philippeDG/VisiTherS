@@ -5,7 +5,7 @@ This work is the second part of my master's project. The ` Main ` branch consist
 ## Architecture
 
 Here is an architecture of the project. HRNet being the feature extractor of both input patches. The head of the network consist of a concatenation and a correlation branch both estimating the disparity individually, and the disparity estimation is given by the mean of both disparity estimation.
-![](images/4d-hrnet-net-arch.png)
+![](images/4d-hrnet-net-mask-arch-2.22.png)
 
 The goal of the ` Transformer ` branch is to replace the concatenation and correlation branch with a single transformer branch. the transformer block added is from the [stereo transformer repository](https://github.com/mli0603/stereo-transformer).
 
