@@ -1,4 +1,4 @@
-# Stereo HRNet
+# VisiTherS
 
 This work is the second part of my master's project. The ` Main ` branch consist of the project shown in my master's theisis, and the code in the ` Transformer ` branch is a work in progress, replacing the head of the network by a transformer. More details will come on the architectures.
 
